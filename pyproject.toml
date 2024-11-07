@@ -1,6 +1,4 @@
 [tool.poetry]
-package-mode = false
-
 name = "my_flask_app"  # Укажите имя вашего проекта
 version = "0.1.0"  # Версия проекта
 description = "A brief description of your project"
