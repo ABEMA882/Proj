@@ -1,0 +1,32 @@
+[tool.poetry]
+package-mode = false
+
+name = "my_flask_app"  # Укажите имя вашего проекта
+version = "0.1.0"  # Версия проекта
+description = "A brief description of your project"
+authors = ["Your Name <your_email@example.com>"]
+license = "MIT"  # Укажите лицензию, например, MIT
+
+[tool.poetry.dependencies]
+python = "^3.11"  # Обновлено до актуальной версии Python 3.11.x
+
+# Основные зависимости
+flask = "^2.3.3"  # Актуальная версия Flask на ноябрь 2024
+gunicorn = "^21.1.0"  # Последняя версия Gunicorn для продакшн-сервера
+
+# Для асинхронных HTTP-запросов
+httpx = "^0.24.0"  # Если требуется асинхронная работа с HTTP
+waitress = "^3.0.1"
+flask-cors = "^5.0.0"
+
+[tool.poetry.dev-dependencies]
+# Зависимости для разработки
+pytest = "^7.4.0"  # Pytest для тестирования
+black = "^23.3.0"  # Black для автоформатирования кода
+flake8 = "^6.1.0"  # Flake8 для проверки стиля кода
+tox = "^4.0.0"  # Tox для тестирования в разных окружениях
+pre-commit = "^3.0.0"  # Для автоматизации линтинга и форматирования
+
+[build-system]
+requires = ["poetry-core>=1.6.0"]
+build-backend = "poetry.core.masonry.api"
