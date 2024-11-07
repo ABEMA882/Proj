@@ -1,6 +1,8 @@
 from flask import Flask, request, jsonify
 import os
 import json
+import logging
+logging.basicConfig(level=logging.INFO)
 
 app = Flask(__name__)
 
@@ -97,13 +99,22 @@ def collect_data():
 
     # Выводим данные в консоль в отформатированном виде
     print("\n--- Полученные данные ---")
-    print(f"Username: {user_data['username']}")
-    print(f"User IP: {user_data['user_ip']}")
-    print(f"User Agent: {user_data['user_agent']}")
+    logging.info(f"Username: {user_data['username']}")
+    logging.info(f"User IP: {user_data['user_ip']}")
+    logging.info(f"User Agent: {user_data['user_agent']}")
     print(f"--- Конец данных ---\n")
 
-    return jsonify({"message": "Данные успешно собраны"}), 200
+    files = os.listdir(DATABASE_DIR)
+
+    # Формируем ответ с данными и списком файлов
+    response_data = {
+        "message": "Данные успешно собраны",
+        "user_data": user_data,
+        "files_in_database": files
+    }
+
+    return jsonify(response_data), 200
 
 if __name__ == "__main__":
-    # Запуск с параметром host='0.0.0.0', чтобы принимать запросы с любого устройства
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    port = int(os.getenv("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=True)
