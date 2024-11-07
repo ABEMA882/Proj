@@ -117,4 +117,5 @@ def collect_data():
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))
+    print(f"App is listening on port {os.getenv('PORT')}")
     app.run(host="0.0.0.0", port=port, debug=True)
