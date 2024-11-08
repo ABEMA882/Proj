@@ -18,7 +18,12 @@ document.getElementById("dataForm").addEventListener("submit", function(event) {
         },
         body: JSON.stringify(data),  // Преобразуем данные в JSON и отправляем
     })
-    .then(response => response.json())  // Ожидаем JSON-ответ
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();  // Ожидаем JSON-ответ
+    })
     .then(data => {
         console.log("Response:", data);  // Выводим успешный ответ
     })

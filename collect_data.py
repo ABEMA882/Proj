@@ -2,8 +2,17 @@ from flask import Flask, request, jsonify
 import os
 import json
 import logging
-from flask_cors import CORS  # Импортируем CORS
-logging.basicConfig(level=logging.INFO)
+from flask_cors import CORS
+import time
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(),  # Логи в консоль
+        logging.FileHandler("app.log")  # Логи в файл
+    ]
+)
 
 app = Flask(__name__)
 
@@ -23,7 +32,6 @@ def home():
                 <title>Collect Data</title>
                 <style>
                     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap');
-
                     * {
                         margin: 0;
                         padding: 0;
@@ -75,7 +83,8 @@ def home():
 
 @app.route('/collect_data', methods=['POST'])
 def collect_data():
-    # Проверка наличия данных в запросе
+    start_time = time.time()  # Для отслеживания времени обработки
+
     if not request.json:
         return jsonify({"error": "Invalid data format. Expected JSON."}), 400
 
@@ -86,7 +95,7 @@ def collect_data():
         return jsonify({"error": "Username is required."}), 400
 
     # Попробуем извлечь реальный IP через X-Forwarded-For
-    user_ip = request.headers.get('X-Forwarded-For', request.remote_addr).split(',')[0]  # Получаем реальный IP
+    user_ip = request.headers.get('X-Forwarded-For', request.remote_addr).split(',')[0]
     user_agent = request.headers.get('User-Agent')
 
     # Группируем данные
@@ -101,25 +110,21 @@ def collect_data():
     with open(filename, 'w') as f:
         json.dump(user_data, f, indent=4)
 
-    # Выводим данные в консоль в отформатированном виде
-    logging.info("\n--- Полученные данные ---")
-    logging.info(f"Username: {user_data['username']}")
-    logging.info(f"User IP: {user_data['user_ip']}")
-    logging.info(f"User Agent: {user_data['user_agent']}")
-    logging.info(f"--- Конец данных ---\n")
-
+    # Логируем данные
+    logging.info(f"User Data: {user_data}")
+    
     files = os.listdir(DATABASE_DIR)
-
-    # Формируем ответ с данными и списком файлов
+    
+    # Отвечаем с данными и списком файлов
     response_data = {
         "message": "Данные успешно собраны",
         "user_data": user_data,
         "files_in_database": files
     }
 
+    logging.info(f"Request processed in {time.time() - start_time:.2f} seconds.")
     return jsonify(response_data), 200
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))
-    print(f"App is listening on port {os.getenv('PORT')}")
     app.run(host="0.0.0.0", port=port, debug=True)
