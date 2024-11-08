@@ -1,12 +1,12 @@
 [tool.poetry]
-name = "my_flask_app"  # Укажите имя вашего проекта
+name = "iphw"  # Укажите имя вашего проекта
 version = "0.1.0"  # Версия проекта
 description = "A brief description of your project"
 authors = ["Your Name <your_email@example.com>"]
 license = "MIT"  # Укажите лицензию, например, MIT
 
 [tool.poetry.dependencies]
-python = "3.11.10"  # Обновлено до актуальной версии Python 3.11.x
+python = "3.12.7"  # Обновлено до актуальной версии Python 3.11.x
 
 # Основные зависимости
 flask = "^2.3.3"  # Актуальная версия Flask на ноябрь 2024

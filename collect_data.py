@@ -98,11 +98,11 @@ def collect_data():
         json.dump(user_data, f, indent=4)
 
     # Выводим данные в консоль в отформатированном виде
-    print("\n--- Полученные данные ---")
+    logging.info("\n--- Полученные данные ---")
     logging.info(f"Username: {user_data['username']}")
     logging.info(f"User IP: {user_data['user_ip']}")
     logging.info(f"User Agent: {user_data['user_agent']}")
-    print(f"--- Конец данных ---\n")
+    logging.info(f"--- Конец данных ---\n")
 
     files = os.listdir(DATABASE_DIR)
 
