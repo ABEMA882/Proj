@@ -2,9 +2,13 @@ from flask import Flask, request, jsonify
 import os
 import json
 import logging
+from flask_cors import CORS  # Импортируем CORS
 logging.basicConfig(level=logging.INFO)
 
 app = Flask(__name__)
+
+# Включаем CORS для всех маршрутов
+CORS(app)
 
 # Папка для сохранения данных
 DATABASE_DIR = "DataBase"
@@ -66,7 +70,7 @@ def home():
                     .catch(error => console.error('Error:', error));
                 </script>
             </body>
-        </html>
+        </html>
     """
 
 @app.route('/collect_data', methods=['POST'])
