@@ -6,7 +6,7 @@ authors = ["Your Name <your_email@example.com>"]
 license = "MIT"  # Укажите лицензию, например, MIT
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = "3.12.7"
 
 # Основные зависимости
 flask = "^2.3.3"  # Актуальная версия Flask на ноябрь 2024
