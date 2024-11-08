@@ -1,1 +1,1 @@
-web: gunicorn collect_data:app
+web: gunicorn --access-logfile - --error-logfile - collect_data:app
