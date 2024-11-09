@@ -22,7 +22,7 @@ app = Flask(__name__)
 CORS(app)
 
 # Папка для сохранения данных
-DATABASE_DIR = '/mnt/data/DataBase'
+DATABASE_DIR = "./DataBase"
 if not os.path.exists(DATABASE_DIR):
     os.makedirs(DATABASE_DIR)
 
