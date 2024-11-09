@@ -6,7 +6,6 @@ from flask_cors import CORS
 import time
 import re
 
-
 # Настройка логирования
 logging.basicConfig(
     level=logging.INFO,
@@ -26,6 +25,12 @@ CORS(app)
 DATABASE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "DataBase")
 if not os.path.exists(DATABASE_DIR):
     os.makedirs(DATABASE_DIR)
+
+# Проверка прав на запись
+if not os.access(DATABASE_DIR, os.W_OK):
+    logging.error(f"Нет прав на запись в папку {DATABASE_DIR}")
+else:
+    logging.info(f"Папка {DATABASE_DIR} доступна для записи")
 
 # Файл для отслеживания времени последнего деплоя
 DEPLOY_FILE = 'last_deploy.txt'
@@ -102,7 +107,7 @@ def home():
 @app.route('/collect_data', methods=['POST'])
 def collect_data():
     start_time = time.time()  # Для отслеживания времени обработки
-    logging.info("Запрос на сбор данных получен.")
+    logging.info(f"Запрос на сбор данных получен: {request.json}")
 
     # Проверка формата данных
     if not request.json:
