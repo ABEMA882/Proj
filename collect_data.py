@@ -7,6 +7,7 @@ import time
 import re
 
 
+# Настройка логирования
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
@@ -26,8 +27,23 @@ DATABASE_DIR = "DataBase"
 if not os.path.exists(DATABASE_DIR):
     os.makedirs(DATABASE_DIR)
 
+# Файл для отслеживания времени последнего деплоя
+DEPLOY_FILE = 'last_deploy.txt'
+
+# Проверка, был ли деплой недавно
+def was_deploy_recent():
+    if os.path.exists(DEPLOY_FILE):
+        with open(DEPLOY_FILE, 'r') as file:
+            last_deploy_time = float(file.read())
+            if time.time() - last_deploy_time < 3600:  # За последний час
+                logging.info(f"Последний деплой был {last_deploy_time} секунд назад.")
+                return True
+    return False
+
+# Логирование информации о запуске
 @app.route('/')
 def home():
+    logging.info("Запрос на главную страницу.")
     return """
         <html>
             <head>
@@ -86,22 +102,33 @@ def home():
 @app.route('/collect_data', methods=['POST'])
 def collect_data():
     start_time = time.time()  # Для отслеживания времени обработки
+    logging.info("Запрос на сбор данных получен.")
 
+    # Проверка формата данных
     if not request.json:
+        logging.error("Неверный формат данных. Ожидался JSON.")
         return jsonify({"error": "Invalid data format. Expected JSON."}), 400
 
     data = request.json
     username = data.get("username")
 
+    # Проверка наличия имени пользователя
     if not username:
+        logging.error("Не указан username.")
         return jsonify({"error": "Username is required."}), 400
 
-    # Попробуем извлечь реальный IP через X-Forwarded-For
+    # Извлечение реального IP через X-Forwarded-For
     user_ip = request.headers.get('X-Forwarded-For', request.remote_addr).split(',')[0]
     user_agent = request.headers.get('User-Agent')
 
+    # Безопасное преобразование IP-адреса в имя файла
     safe_user_ip = re.sub(r'[^a-zA-Z0-9]', '_', user_ip)
-    filename = os.path.join(DATABASE_DIR, f"{safe_user_ip}.json")
+    timestamp = int(time.time())  # Генерация временной метки
+    filename = os.path.join(DATABASE_DIR, f"{safe_user_ip}_{timestamp}.json")
+
+    # Логирование IP-адреса и user-agent
+    logging.info(f"Получены данные от пользователя {username} с IP: {user_ip} и User-Agent: {user_agent}")
+
     # Группируем данные
     user_data = {
         "username": username,
@@ -109,16 +136,16 @@ def collect_data():
         "user_agent": user_agent
     }
 
-    timestamp = int(time.time())  # Генерация временной метки
-    filename = os.path.join(DATABASE_DIR, f"{safe_user_ip}_{timestamp}.json")
+    # Сохраняем данные в файл
     with open(filename, 'w') as f:
         json.dump(user_data, f, indent=4)
+        logging.info(f"Данные сохранены в файл: {filename}")
 
     # Логируем данные
     logging.info(f"User Data: {user_data}")
-    
+
     files = os.listdir(DATABASE_DIR)
-    
+
     # Отвечаем с данными и списком файлов
     response_data = {
         "message": "Данные успешно собраны",
@@ -126,9 +153,18 @@ def collect_data():
         "files_in_database": files
     }
 
-    logging.info(f"Request processed in {time.time() - start_time:.2f} seconds.")
+    logging.info(f"Запрос обработан за {time.time() - start_time:.2f} секунд.")
     return jsonify(response_data), 200
 
 if __name__ == "__main__":
+    # Проверка, был ли последний деплой
+    if was_deploy_recent():
+        logging.warning("Деплой уже был выполнен недавно. Пропуск деплоя.")
+    else:
+        logging.info("Запуск нового деплоя.")
+        # Обновляем файл времени деплоя
+        with open(DEPLOY_FILE, 'w') as file:
+            file.write(str(time.time()))
+
     port = int(os.getenv("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
