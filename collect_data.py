@@ -22,7 +22,7 @@ app = Flask(__name__)
 CORS(app)
 
 # Папка для сохранения данных
-DATABASE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "DataBase")
+DATABASE_DIR = '/mnt/data/DataBase'
 if not os.path.exists(DATABASE_DIR):
     os.makedirs(DATABASE_DIR)
 
@@ -142,9 +142,14 @@ def collect_data():
     }
 
     # Сохраняем данные в файл
-    with open(filename, 'w') as f:
-        json.dump(user_data, f, indent=4)
+    try:
+        with open(filename, 'w') as f:
+            json.dump(user_data, f, indent=4)
         logging.info(f"Данные сохранены в файл: {filename}")
+    except Exception as e:
+        logging.error(f"Ошибка при сохранении данных в файл {filename}: {e}")
+
+    
 
     # Логируем данные
     logging.info(f"User Data: {user_data}")
