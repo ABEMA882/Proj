@@ -4,6 +4,8 @@ import json
 import logging
 from flask_cors import CORS
 import time
+import re
+
 
 logging.basicConfig(
     level=logging.INFO,
@@ -98,6 +100,8 @@ def collect_data():
     user_ip = request.headers.get('X-Forwarded-For', request.remote_addr).split(',')[0]
     user_agent = request.headers.get('User-Agent')
 
+    safe_user_ip = re.sub(r'[^a-zA-Z0-9]', '_', user_ip)
+    filename = os.path.join(DATABASE_DIR, f"{safe_user_ip}.json")
     # Группируем данные
     user_data = {
         "username": username,
@@ -105,8 +109,8 @@ def collect_data():
         "user_agent": user_agent
     }
 
-    # Сохраняем данные в файл
-    filename = os.path.join(DATABASE_DIR, f"{user_ip}.json")
+    timestamp = int(time.time())  # Генерация временной метки
+    filename = os.path.join(DATABASE_DIR, f"{safe_user_ip}_{timestamp}.json")
     with open(filename, 'w') as f:
         json.dump(user_data, f, indent=4)
 
